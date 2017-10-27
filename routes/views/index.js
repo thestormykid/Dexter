@@ -1,23 +1,57 @@
 var user = require('../../models/user');
+var moment = require("moment");
 
 module.exports = {
 
 	landing: function (req, res) {
-
-// 		var obj = new user ({
-// 	      id : 1,
-// });
-
-// user.create({obj},function(err,result){
-// 	if(err) throw err;
-// 	else
-// 		{   console.log(result);
-// 			console.log("OKAY");
-// 			res.render("landing",{userid:"1",username:"Hanu"});
-// 		}
-
-// })
 		res.render("landing");
+	},
+
+	startingLocation: function(req, res) {
+
+		var initialStandId = req.query.initialStandId;
+		var userId = req.query.userId;
+		var busId = req.query.busId;
+		var name = "hanu";
+
+		user.create({
+			initialStandId: initialStandId,
+			userId: userId,
+			busId: busId,
+			name: name,
+			creditedAmount: 300,
+			startingTime: moment().format()
+
+		}, function(err, newUser) {
+			if (err) {
+				console.log(err);
+			}
+
+			console.log(newUser);
+
+			res.json(newUser);
+		})
+	},
+
+	endLocation: function(req, res) {
+
+		var finalStandId = req.query.finalStandId;
+		var userId = req.query.userId;
+		var busId = req.query.busId;
+
+		user.findOne({ userId: userId, busId: busId }, function(err, foundUser) {
+			if (err) {
+				console.log(err);
+			}
+
+			foundUser.finalStandId = finalStandId;
+			foundUser.endingTime = moment().format();
+			foundUser.amountCharged = 5;
+			foundUser.creditedAmount = foundUser.creditedAmount - 5;
+
+			res.json(foundUser);
+
+		})
 	},
 
 	addprescription: function(req, res) {

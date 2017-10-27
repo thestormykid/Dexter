@@ -9,6 +9,8 @@ var routes = {
 
 router.get("/", routes.views.index.landing);
 
+router.post("/startingLocation", routes.views.index.startingLocation);
+router.post("/endingLocation", routes.views.index.endLocation);
 // router.get("/login",routes.views.index.login);
 // router.get("/store", routes.views.index.store);
 // router.get("/list", routes.views.index.list);

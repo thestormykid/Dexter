@@ -21,11 +21,12 @@ app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");
 
+mongoose.connect('mongodb://localhost/automation');
 
 // if we use mongo in our localhost
 //mongoose.connect("mongodb://localhost/campuskart");
-mongoose.Promise = global.Promise;
-mongoose.connection.openUri("mongodb://sjv97mhjn:1997@ds119685.mlab.com:19685/health");
+// mongoose.Promise = global.Promise;
+// mongoose.connection.openUri("mongodb://sjv97mhjn:1997@ds119685.mlab.com:19685/health");
 //  if we use mongolab
 // mongoose.connection.openUri("mongodb://sjv97mhjn:1997@ds151004.mlab.com:51004/campuskart");
 // mongoose.connection.on('error', (err) => {
