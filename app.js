@@ -21,48 +21,11 @@ app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");
 
-mongoose.connect('mongodb://localhost/automation');
-
-// if we use mongo in our localhost
-//mongoose.connect("mongodb://localhost/campuskart");
-// mongoose.Promise = global.Promise;
-// mongoose.connection.openUri("mongodb://sjv97mhjn:1997@ds119685.mlab.com:19685/health");
-//  if we use mongolab
-// mongoose.connection.openUri("mongodb://sjv97mhjn:1997@ds151004.mlab.com:51004/campuskart");
-// mongoose.connection.on('error', (err) => {
-//   console.error(err);
-//   // console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
-//   process.exit();
-// });
+mongoose.connect('mongodb://sjv97mhjn:1234@ds237475.mlab.com:37475/ticketotomatet');
+// mongoose.connect('mongodb://localhost/Automations');
 
 app.use("/", routes);
-// app.get("/upload",function(req,res){
-// 	res.render("file.ejs");
-// })
-// app.post("/upload",upload.any(),function(req,res,next){
-//     console.log(req.files[0]);
-//     // //var name = req.body.name;
-//     // var image = req.files[0].path.replace("views/campgrounds/","");
-//     // var desc = req.body.description;
-//     // var author = {
-//     //     id : req.user._id,
-//     //     username : req.user.username
-//     // };
-
-//     // var newCampground = {name: name, image: image, description: desc, author: author}
-//     // // Create a new campground and save to DB
-//     // Campground.create(newCampground, function(err, newlyCreated){
-//     //     if(err){
-//     //         console.log(err);
-//     //     } else {
-//     //         //redirect back to campgrounds page
-//     //         res.redirect("/campgrounds");
-//     //     }
-//     // });
-// });
-
 
 app.listen(port,function(){
 	console.log("Listening On port " + port);
 })
-//Prescription Form

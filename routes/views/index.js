@@ -4,251 +4,128 @@ var moment = require("moment");
 module.exports = {
 
 	landing: function (req, res) {
-		res.render("landing");
+		res.render("index");
 	},
 
 	startingLocation: function(req, res) {
 
-		var initialStandId = req.query.initialStandId;
-		var userId = req.query.userId;
-		var busId = req.query.busId;
+		var initialStandId = req.body.startingPoint;
+		var userId = req.body.beaconID;
+		var busId = req.body.busID;
 		var name = "hanu";
 
-		user.create({
-			initialStandId: initialStandId,
-			userId: userId,
-			busId: busId,
-			name: name,
-			creditedAmount: 300,
-			startingTime: moment().format()
+		console.log(req.body);
+		user.findOne({userId: "d497c651-5b18-443a-a568-65bbb4fbd98b"}).exec(function(err, checkUserIsPresent) {
 
-		}, function(err, newUser) {
 			if (err) {
 				console.log(err);
 			}
 
-			console.log(newUser);
+			if (!checkUserIsPresent) {
+					user.create({
+					initialStandId: initialStandId,
+					userId: "d497c651-5b18-443a-a568-65bbb4fbd98b",
+					busId: busId,
+					name: name,
+					creditedAmount: 3000,
+					startingTime: moment().format()
 
-			res.json(newUser);
+				}, function(err, newUser) {
+					if (err) {
+						console.log(err);
+					}
+
+					console.log(newUser);
+
+					res.json(newUser);
+				})
+			} else {
+					user.create({
+					initialStandId: initialStandId,
+					userId: "d497c651-5b18-443a-a568-65bbb4fbd98b",
+					busId: busId,
+					name: name,
+					creditedAmount: checkUserIsPresent.creditedAmount,
+					startingTime: moment().format()
+
+				}, function(err, newUser) {
+					if (err) {
+						console.log(err);
+					}
+
+					console.log(newUser);
+
+					res.json(newUser);
+				})
+			}
 		})
 	},
 
 	endLocation: function(req, res) {
 
-		var finalStandId = req.query.finalStandId;
-		var userId = req.query.userId;
-		var busId = req.query.busId;
+		var finalStandId = req.body.endPoint;
+		var userId = req.body.beaconID;
+		userId = "d497c651-5b18-443a-a568-65bbb4fbd98b";
+		var busId = req.body.busID;
 
+
+		console.log(req.body);
 		user.findOne({ userId: userId, busId: busId }, function(err, foundUser) {
 			if (err) {
 				console.log(err);
 			}
 
 			foundUser.finalStandId = finalStandId;
-			foundUser.endingTime = moment().format();
+			foundUser.endTime = moment().format();
 			foundUser.amountCharged = 5;
 			foundUser.creditedAmount = foundUser.creditedAmount - 5;
 
-			res.json(foundUser);
+			foundUser.save(function(err, SavedUser) {
+				if (err){
+					console.log(err);
+				}
+
+				console.log(SavedUser);
+				res.json(foundUser);
+			})
+
+
+
 
 		})
 	},
 
-	addprescription: function(req, res) {
+	home: function(req, res) {
+		res.render("home.ejs");
+	},
 
-		user.findOne({aid:req.params.id},function(err,result){
-			if(err) throw err;
-			else{
-				console.log(result)
-				res.render("addprescription",{user:result}) };
-		})
-	},
-	list  : function(req,res){
-		var id = req.params.id;
-		user.findOne({aid:id},function(err,result){
-			res.render("prescription",{prescription:result["prescription"],userid:req.params.id});
-		})
-	},
-	store : function(req,res){
-			res.render("index");
-	},
-	login : function(req,res){
-		res.redirect("/welcome");
-		//	     res.render("landings",{userid:"1",username:"Hanu"});
-   } ,
-	landings: function(req,res){
-		res.render("landings",{userid:"1",username:"Hanu"});
+	timeline: function(req, res) {
 
-	},
-	prescription: function(req,res){
-		var id = req.params.id;
-		user.findOne({aid:id},function(err,result){
-			res.render("prescription",{prescription:result["prescription"],userid:req.params.id});
-		})
-	},
-	prescriptionone: function(req,res){
-		var id = req.params.id1;
-		user.findOne({aid:id},function(err,result){
-		res.render("prescriptionone",{prescription:result["prescription"],userid:req.params.id1,presid:req.params.id2});
-		})
-	},
-	report: function(req,res){
-			var id = req.params.id;
-			console.log(id);
-		user.findOne({aid:id}).exec(function(err,result){
-			if(err){
+		var locations = ["Rohini", "janakpuri", "dwarka", "dms Mall" , "samaypur", "badli" , "ramesh nagar",
+						 "kalkaji Mandir", "kamla nagar", "moti nagar"
+						]
+
+		user.find({ userId: "d497c651-5b18-443a-a568-65bbb4fbd98b" }).sort({'startingTime': 'desc'}).exec(function(err, foundUser) {
+			if (err) {
 				console.log(err);
 			}
-			console.log(result);
-			res.render("report",{reports:result["reports"],userid:req.params.id});
+			var location = {
+				 location1 : locations[Math.floor(Math.random() * locations.length)],
+				 location2 : locations[Math.floor(Math.random() * locations.length)]
+			}
+			// It is the array of the user
+			res.render("timeline", { foundUser: foundUser, moment: moment, locations: locations });
 		})
 	},
 
-	Addprescription:function(req,res){
-		//asuming everything in req.body
-		var pres = req.body;
-		console.log(pres);
-		var prescription = {
-			prescriptionId: pres.prescriptionId,
-			doctorId: pres.doctorId,
-			doctor_name: pres.doctor_name,
-			hospital_name: pres.hospital_name,
-			prescriptionDetails: pres.prescriptionDetails,
-			disease : pres.disease,
-		}
-	user.findOne({aid: req.params.id}).exec(function(err,user){
-		//console.log(user);
-		user.prescription.push(prescription);
-		user.save(function(err,user){
-			if(err){
-				throw err;
+	balanceEnquiry: function(req, res) {
+		user.find({ userId: "d497c651-5b18-443a-a568-65bbb4fbd98b" }, function(err, foundUser) {
+			if (err) {
+				console.log(err);
 			}
-			else{
-				res.redirect("/prescription/" + req.params.id);
-			}
+
+			res.render("profile" , { foundUser: foundUser[0] });
 		})
-	})
-
-	},
-	addreport: function(req,res){
-		res.render("addreport.ejs",{id:req.params.id});
-	},
-
-	welcome: function(req,res){
-		res.render("welcome.ejs");
-	},
-
-	loginsignup: function(req,res){
-		res.render("loginsignup.ejs");
-	},
-
-	Addreport:function(req,res){
-		//asuming everything in req.body
-		//console.log(req.files);
-
-		var result = req.body;
-		var report = {
-			userId:result.userId,
-			reportId: result.reportId,
-			reportName: result.reportName,
-			lab_name: result.lab_name,
-			location: result.location,
-			doc_link: result.doc_link
-		}
-	user.findOne({aid: req.params.id}).exec(function(err,user){
-		user.reports.push(report);
-		user.save(function(err,user){
-			if(err){
-				throw err;
-			}
-			else{
-				res.redirect("/report/"+req.params.id);
-			}
-		})
-	})
-
-	},
-
-	viewstatic: function(req, res) {
-		res.render("view.ejs");
-	},
-
-	verify: function(req,res){
-		res.render("verify.ejs",{id:req.params.id, error: req.query.error});
-	},
-
-	reports: function(req,res){
-		res.render("reports.ejs");
-	},
-
-	verifyPost:function(req,res){
-		//asuming everything in req.body
-
-		console.log(req.files[0].path);
-
-		var filename = req.files[0].filename;
-		var str = base64_encode(req.files[0].path);
-		//console.log(str);
-		var request = require('request');
-
-		var options = {
-		uri: 'https://private-anon-2eba353011-kairos.apiary-proxy.com/recognize',
-		method: 'POST',
-		json: {
-			"gallery_name": "Health",
-			"image": str
-		},
-		headers: {
-			'app_id': '96ba018e',
-			'app_key': '7592d69340f9bc13208667783b76a9e4'
-		}
-		};
-
-		request(options, function (error, response, body) {
-			var maxPercent = 0;
-			var subject_id = "null";
-
-			console.log(body);
-
-			if (("images" in body) && ("candidates" in body["images"][0]))
-			{
-				var data = body["images"][0]["candidates"];
-
-				data.forEach(obj => {
-					if (obj.confidence > maxPercent)
-					{
-						maxPercent = obj.confidence;
-						subject_id = obj.subject_id;
-					}
-				});
-			}
-
-			if (maxPercent >= 0.5)
-			{
-				//res.send({id: subject_id});
-				res.redirect('/prescription/1');
-			}
-			else
-			{
-				//res.status(404).json({message: "No valid image found"});
-				res.redirect("/verify?error=No%20Match%20Found!%20Retry%20Again");
-			}
-		});
-
 	}
-}
 
-var fs = require('fs');
-
-function base64_encode(file) {
-	// read binary data
-	var bitmap = fs.readFileSync(file);
-	// console.log("===============BITMAP===================")
-	// console.log(bitmap);
-	// console.log("===============BUFFER===================")
-	// console.log(Buffer(bitmap).toString('base64'));
-	// console.log("===============BUFFER===================")
-
-	// convert binary data to base64 encoded string
-	return new Buffer(bitmap).toString('base64');
 }
